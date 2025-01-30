@@ -43,9 +43,7 @@ namespace TicketBookingCore.Tests
             Assert.Equal("request", exception.ParamName);
         }
 
-        /// <summary>
-        /// This test will fail 
-        /// </summary>
+         //Test fail
         [Fact]
         public void ShouldSaveToDatabase()
         {
