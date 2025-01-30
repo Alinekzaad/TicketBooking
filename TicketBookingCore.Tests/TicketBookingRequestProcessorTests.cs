@@ -1,13 +1,21 @@
+using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using Moq;
 
 namespace TicketBookingCore.Tests
 {
     public class TicketBookingRequestProcessorTests
     {
+        private readonly TicketBookingRequest _request;
         private readonly Mock<ITicketBookingRepository> _ticketBookingRepositoryMock;
         private readonly TicketBookingRequestProcessor _processor;
         public TicketBookingRequestProcessorTests()
         {
+            _request = new TicketBookingRequest
+            {
+                FirstName = "Ali",
+                LastName = "Nekzad",
+                Email = "alinekzaad@gmail.com"
+            };
             _ticketBookingRepositoryMock = new Mock<ITicketBookingRepository>();
             _processor = new TicketBookingRequestProcessor(_ticketBookingRepositoryMock.Object);
         }
@@ -15,8 +23,7 @@ namespace TicketBookingCore.Tests
         [Fact]
         public void ShouldReturnTicketBookningResultWithRequestValues()
         {
-            //Arrange
-
+            // Arrange
             var request = new TicketBookingRequest
             {
                 FirstName = "Ali",
@@ -24,10 +31,10 @@ namespace TicketBookingCore.Tests
                 Email = "alinekzaad@gmail.com"
             };
 
-            //Act
+            // Act
             TicketBookingResponse response = _processor.Book(request);
 
-            //Assert
+            // Assert
             Assert.NotNull(response);
             Assert.Equal(request.FirstName, response.FirstName);
             Assert.Equal(request.LastName, response.LastName);
@@ -36,18 +43,20 @@ namespace TicketBookingCore.Tests
         [Fact]
         public void ShouldThrowExceptionIfRequestIsNull()
         {
-            //Act
+            // Act
             var exception = Assert.Throws<ArgumentNullException>(() => _processor.Book(null));
 
             //Assert
             Assert.Equal("request", exception.ParamName);
         }
 
-         //Test fail
+        /// <summary>
+        /// This test will
+        /// </summary>
         [Fact]
         public void ShouldSaveToDatabase()
         {
-            //Arrange
+            // Arrange
             TicketBooking savedTicketBooking = null;
 
             _ticketBookingRepositoryMock.Setup(x => x.Save(It.IsAny<TicketBooking>()))
@@ -56,21 +65,18 @@ namespace TicketBookingCore.Tests
                 savedTicketBooking = ticketBooking;
             });
 
-            var request = new TicketBookingRequest
-            {
-                FirstName = "Ali",
-                LastName = "Nekzad",
-                Email = "alinekzaad@gmail.com"
-            };
 
-            //Act
-            TicketBookingResponse response = _processor.Book(request);
+            // Act
+            _processor.Book(_request);
 
-            //Assert
+            // Assert
+
+            _ticketBookingRepositoryMock.Verify(x => x.Save(It.IsAny<TicketBooking>()), Times.Once);
+
             Assert.NotNull(savedTicketBooking);
-            Assert.Equal(request.FirstName, savedTicketBooking.FirstName);
-            Assert.Equal(request.LastName, savedTicketBooking.LastName);
-            Assert.Equal(request.Email, savedTicketBooking.Email);
+            Assert.Equal(_request.FirstName, savedTicketBooking.FirstName);
+            Assert.Equal(_request.LastName, savedTicketBooking.LastName);
+            Assert.Equal(_request.Email, savedTicketBooking.Email);
         }
     }
 }

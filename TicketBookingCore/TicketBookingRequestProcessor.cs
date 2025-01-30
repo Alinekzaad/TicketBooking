@@ -4,7 +4,6 @@ namespace TicketBookingCore
     public class TicketBookingRequestProcessor
     {
         private readonly ITicketBookingRepository _ticketBookingRepository;
-
         public TicketBookingRequestProcessor(ITicketBookingRepository ticketBookingRepository)
         {
             _ticketBookingRepository = ticketBookingRepository;
@@ -17,20 +16,24 @@ namespace TicketBookingCore
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var ticket = new TicketBooking
+            _ticketBookingRepository.Save(Create<TicketBooking>(request));
+
+            return Create<TicketBookingResponse>(request);
+        }
+        /// <summary>
+        /// This method creates a new instance of the specified type 
+        /// and sets the properties from the request object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        private static T Create<T>(TicketBookingRequest request) where T : TicketBookingBase, new()
+        {
+            return new T
             {
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email
-            };
-
-            _ticketBookingRepository.Save(ticket);
-
-            return new TicketBookingResponse
-            {
-                FirstName = ticket.FirstName,
-                LastName = ticket.LastName,
-                Email = ticket.Email
             };
         }
     }
